@@ -1,10 +1,35 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import sqlite3
 
+
+    
 faceDetect = cv2.CascadeClassifier('E:\OpenCV\opencv\sources\data\haarcascades\haarcascade_frontalface_default.xml')
 cam = cv2.VideoCapture(0)
+
+
+def insertOrUpdate(Id, Name):
+    conn = sqlite3.connect("E:\\Git Folders\\OpenCV\\recognization\\FaceBase.db")
+    cmd = "SELECT * FROM People WHERE ID = "+ str(Id)
+    cursor = conn.execute(cmd)
+    isRecordExit = 0
+    for row in cursor:
+        isRecordExit = 1
+
+    if(isRecordExit == 1):
+        cmd = "UPDATE People SET Name" + str(Name) + "WHERE ID =" + str(Id)
+
+    else:
+        cmd = "Insert into People(ID,Name) Values (" +str(Id) + "," +str(Name)+")"
+    conn.execute(cmd)
+    conn.commit()
+    conn.close()
+
 id = int(input("enter user id"))
+name = input("Enter name")
+
+insertOrUpdate(id, name)
 sampleNum = 0
 while(True):
     ret,img = cam.read()

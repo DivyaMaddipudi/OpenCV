@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import sqlite3
 
 
 faceDetect = cv2.CascadeClassifier('E:\\OpenCV\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_default.xml')
@@ -12,7 +13,21 @@ rec = cv2.face.LBPHFaceRecognizer_create()
 rec.read("E:\\Git Folders\\OpenCV\\recognization\\recognizer\\trainingdata.yml")
 
 id = 0
+def getProfile(id):
 
+    conn = sqlite3.connect("E:\\Git Folders\\OpenCV\\recognization\\FaceBase.db")
+    cmd = "SELECT * FROM People WHERE ID =" + str(id)
+
+    cursor = conn.execute(cmd)
+    profile = None
+    for row in cursor:
+        profile = row[1]
+        print(profile)
+    conn.close()
+    return profile
+
+
+    
 font = cv2.FONT_HERSHEY_SIMPLEX
 while(True):
     ret,img = cam.read()
@@ -28,12 +43,15 @@ while(True):
 
         id, conf = rec.predict(gray_image[y:y+h, x:x+w])
 
-        if id == 1:
-            id = "Divya"
-        elif id == 2:
-            id = "Vidya"
-            
-        cv2.putText(img,str(id), (x, y+h), font, 2, (0,0,255),2,cv2.LINE_AA)
+        profile = getProfile(id)
+        if(profile != None):
+            cv2.putText(img,str(profile[1]), (x, y+h+30), font, 1, (0,0,255),2,cv2.LINE_AA)
+            cv2.putText(img,str(profile[2]), (x, y+h+60), font, 1, (0,0,255),2,cv2.LINE_AA)
+            cv2.putText(img,str(profile[3]), (x, y+h+90), font, 1, (0,0,255),2,cv2.LINE_AA)
+        
+        else:
+
+            cv2.putText(img,'Unknown', (x, y+h+30), font, 1, (0,0,255),2,cv2.LINE_AA)
 
     cv2.imshow("Face",img)
 
